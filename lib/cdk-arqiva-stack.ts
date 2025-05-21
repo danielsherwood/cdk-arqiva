@@ -4,10 +4,19 @@ import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 //Import API Gateway L2 construct
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+// Import S3 buckets
+import * as s3 from 'aws-cdk-lib/aws-s3';
 
 export class CdkArqivaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    // Define the AWS bucket
+
+    const bucket = new s3.Bucket(this, 'S3Bucket', {
+      bucketName: `dan-bucket-281000`,
+      removalPolicy: cdk.RemovalPolicy.DESTROY
+    });
 
     // The code that defines your stack goes here
     // Define the Lambda function resource
@@ -16,6 +25,9 @@ export class CdkArqivaStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda'), // Points to the lambda directory
       handler: 'hello.handler', // Points to the 'hello' file in the lambda directory
     });
+
+    // Add access to the bucket
+    bucket.grantRead(helloWorldFunction);
 
     // Define the API Gateway resource
     const api = new apigateway.LambdaRestApi(this, 'HelloWorldApi', {
